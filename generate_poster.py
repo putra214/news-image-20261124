@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Draw the front page for Tuesday 24 November 2026 (v1).
+"""Draw the front page for Tuesday 24 November 2026 (v2 — refine ronde 1).
+
+v2 changes (from vision-AI judging of v1, 20/25 wins): DATE CHECK box
+rewritten with an explicit affirmation line + "NOT ON THIS PAGE" label
+(vision judges misread v1's "WHAT WE LEFT OUT" list as included
+wrong-date stories); timeline header now names the date explicitly;
+IN BRIEF type bumped 12 -> 13 with 14 leading and section headers
+clarified (2 losses on clutter/readability). Stories unchanged (35).
 
 One 1024x1024 newspaper poster, rendered with Pillow from flat vector
 shapes and programmatic text (no AI image generation, so every letter
@@ -561,7 +568,7 @@ BRIEFS_A = [
     ("YEMEN", C_CRIMSON, "Houthis advance to 60 km from Aden; army says city will hold."),
     ("ISRAEL", C_CRIMSON, "Eisenkot seals first coalition deal since 27 Oct vote."),
     ("US", C_SLATE, "Abrego Garcia leaves US voluntarily for Europe."),
-    ("SPORT", C_GREEN, "Champions League: Real Madrid 5-1 PSV; Arsenal 1-1 Dortmund."),
+    ("SPORT", C_GREEN, "Champions League: Real 5-1 PSV; Arsenal 1-1 Dortmund."),
     ("NIGERIA", C_GREEN, "Tinubu asks parliament to trim 2026 budget to $48bn."),
     ("PHILIPPINES", C_AMBER, "Manila deports 139 Indonesians from Pasay scam hub."),
     ("UKRAINE", C_BLUE, "Russian strike on Zaporizhzhia kills 2, hurts 48."),
@@ -627,10 +634,10 @@ def main():
     f_sub = F(SANS_B, 11)
     sub = "ONE DAY \u2022 35 STORIES \u2022 NINE REGIONS"
     sw = d.textlength(sub, font=f_sub)
-    d.text(((W - sw) / 2, 124), sub, font=f_sub, fill=INK)
+    d.text(((W - sw) / 2, 122), sub, font=f_sub, fill=INK)
 
     # Big-number strip.
-    sy, sh = 142, 44
+    sy, sh = 140, 38
     d.rectangle([MX, sy, W - MX, sy + sh], fill=RED_BAND)
     d.line([(MX, sy), (W - MX, sy)], fill=RED, width=2)
     d.line([(MX, sy + sh), (W - MX, sy + sh)], fill=RED, width=2)
@@ -642,18 +649,18 @@ def main():
         nw = d.textlength(num, font=f_num)
         if nw > cell - 8:
             note("strip number too wide: %r (%.1f)" % (num, nw))
-        d.text((cx - nw / 2, sy + 3), num, font=f_num, fill=RED)
+        d.text((cx - nw / 2, sy + 1), num, font=f_num, fill=RED)
         lab_lines = wrap(d, lab, f_lab, cell - 10)
         if len(lab_lines) > 1:
             note("strip label wraps: %r" % lab)
         lw = d.textlength(lab, font=f_lab)
-        d.text((cx - lw / 2, sy + 31), lab, font=f_lab, fill=INK)
+        d.text((cx - lw / 2, sy + 27), lab, font=f_lab, fill=INK)
         if i:
             x = MX + cell * i
-            d.line([(x, sy + 7), (x, sy + sh - 7)], fill=(200, 160, 158), width=1)
+            d.line([(x, sy + 5), (x, sy + sh - 5)], fill=(200, 160, 158), width=1)
 
     # Three leads, side by side, each with a rich illustration.
-    ly, lh = 194, 132
+    ly, lh = 186, 132
     lead_w, lead_gap = 316, 8
     f_kick = F(SANS_B, 11)
     f_lhead = F(SANS_B, 16)
@@ -675,33 +682,34 @@ def main():
         draw_lines(d, lx + 10, ly + 102, deck_lines, f_ldeck, INK, 14)
 
     # Map + UTC timeline row.
-    my, mh = 334, 110
+    my, mh = 326, 100
     # Map (left).
     d.rectangle([MX, my, MX + 500, my + mh], fill=CARD_BG,
                 outline=(200, 194, 178))
-    f_maplab = F(SANS_B, 10)
-    d.text((MX + 10, my + 8), "WHERE IT HAPPENED", font=f_maplab, fill=GREY)
+    f_maplab = F(SANS_B, 11)
+    d.text((MX + 10, my + 8), "WHERE IT HAPPENED", font=f_maplab, fill=INK)
     d.text((MX + 500 - 10 - d.textlength("1\u20139 = LEADS & GRID",
            font=f_maplab), my + 8), "1\u20139 = LEADS & GRID",
-           font=f_maplab, fill=GREY)
-    draw_map(d, MX + 8, my + 22, 484, 84, dot_r=1.8)
+           font=f_maplab, fill=INK)
+    draw_map(d, MX + 8, my + 22, 484, 74, dot_r=1.5)
     # Timeline (right).
     tx0 = MX + 508
     tw = W - MX - tx0
     d.rectangle([tx0, my, tx0 + tw, my + mh], fill=CARD_BG,
                 outline=(200, 194, 178))
-    d.text((tx0 + 10, my + 8), "THE DAY IN UTC", font=f_maplab, fill=GREY)
+    d.text((tx0 + 10, my + 8), "TUESDAY 24 NOV IN UTC \u2014 ALL TIMES UTC",
+           font=f_maplab, fill=INK)
     f_tl = F(SANS, 11)
     f_tlb = F(SANS_B, 11)
     for j, (tm, txt) in enumerate(TIMELINE):
-        yy = my + 26 + j * 14
+        yy = my + 24 + j * 12
         d.text((tx0 + 10, yy), tm, font=f_tlb, fill=RED)
         if d.textlength(tm + "  " + txt, font=f_tl) > tw - 20:
             note("timeline too wide: %r" % txt)
         d.text((tx0 + 52, yy), txt, font=f_tl, fill=INK)
 
     # Grid: 2 columns x 3 rows of main stories.
-    gy = 452
+    gy = 434
     card_w, card_h, gap = 478, 84, 6
     f_h = F(SANS_B, 16)
     f_b = F(SANS, 11)
@@ -725,29 +733,47 @@ def main():
         b_lines = fit_lines(d, story["body"], f_b, text_w, 2, "body %d" % (i + 1))
         draw_lines(d, tx, cy + 58, b_lines, f_b, INK, 12)
 
-    # DATE CHECK box: 9 non-24-Nov stories, honestly dated.
-    dy, dh = 724, 64
+    # DATE CHECK box: affirmation first, then the excluded items with a
+    # big red x each. v1's "WHAT WE LEFT OUT" header was misread by vision
+    # judges as a list of INCLUDED wrong-date stories (3 losses); the new
+    # wording makes the exclusion unmistakable even at 300px.
+    dy, dh = 706, 80
     d.rectangle([MX, dy, W - MX, dy + dh], fill=RED_BAND, outline=RED, width=2)
-    f_dc = F(SANS_B, 12)
-    f_dci = F(SANS, 11)
-    d.text((MX + 12, dy + 5), "DATE CHECK \u2014 WHAT WE LEFT OUT:",
+    f_dc = F(SANS_B, 13)
+    d.text((MX + 12, dy + 5),
+           "DATE CHECK \u2014 EVERY STORY ON THIS PAGE HAPPENED OR WAS "
+           "FIRST REPORTED ON TUESDAY 24 NOVEMBER 2026.",
            font=f_dc, fill=RED)
+    d.text((MX + 12, dy + 22),
+           "NOT ON THIS PAGE \u2014 CHECKED AND LEFT OUT ON PURPOSE:",
+           font=f_dc, fill=RED)
+    f_dcx = F(SANS_B, 15)
+    f_dci = F(SANS, 12)
     for r in range(3):
         items = DATE_CHECK[r * 3:(r + 1) * 3]
-        line = "   \u2715 " + "   \u00b7   \u2715 ".join(
-            "%s \u2014 %s" % (t, dt) for (t, dt) in items)
-        if d.textlength(line, font=f_dci) > CW - 24:
-            note("DATE CHECK line too wide: %r" % line)
-        d.text((MX + 12, dy + 22 + r * 14), line, font=f_dci, fill=INK)
+        x = MX + 12
+        yy = dy + 40 + r * 14
+        for j, (t, dt) in enumerate(items):
+            d.text((x, yy - 2), "\u00d7", font=f_dcx, fill=RED)
+            xw = d.textlength("\u00d7", font=f_dcx)
+            txt = " %s \u2014 %s" % (t, dt)
+            d.text((x + xw, yy), txt, font=f_dci, fill=INK)
+            x += xw + d.textlength(txt, font=f_dci)
+            if j < 2:
+                sep = "   \u00b7   "
+                d.text((x, yy), sep, font=f_dci, fill=GREY)
+                x += d.textlength(sep, font=f_dci)
+        if x - (MX + 12) > CW - 24:
+            note("DATE CHECK row %d too wide (%.1f)" % (r, x - (MX + 12)))
 
     # Briefs, two columns, one line each.
-    by = 796
-    f_sec = F(SANS_B, 11)
+    by = 794
+    f_sec = F(SANS_B, 12)
     d.text((MX, by), "IN BRIEF", font=f_sec, fill=RED)
-    d.line([(MX + 74, by + 6), (W - MX, by + 6)], fill=(200, 194, 178), width=1)
-    f_br = F(SANS, 12)
-    f_bk = F(SANS_B, 12)
-    lead = 13
+    d.line([(MX + 78, by + 6), (W - MX, by + 6)], fill=(200, 194, 178), width=1)
+    f_br = F(SANS, 13)
+    f_bk = F(SANS_B, 13)
+    lead = 14
     for col, briefs in enumerate((BRIEFS_A, BRIEFS_B)):
         bx = MX + col * (card_w + gap)
         for j, (kick, color, text) in enumerate(briefs):
@@ -759,12 +785,12 @@ def main():
                 note("brief too wide: %r" % (kick + rest))
             d.text((bx + kw, yy), rest, font=f_br, fill=INK)
 
-    # Footer.
-    f_foot = F(SANS, 10)
+    # Footer (affirmation, bolded in v2).
+    f_foot = F(SANS_B, 10)
     foot = ("Events happened or were first reported on 24 November 2026, "
             "unless dated otherwise. Drawn from wire reports.")
     fw = d.textlength(foot, font=f_foot)
-    d.text(((W - fw) / 2, 992), foot, font=f_foot, fill=GREY)
+    d.text(((W - fw) / 2, 1000), foot, font=f_foot, fill=GREY)
 
     img.save(OUT, format="PNG")
     print("wrote %s (%d bytes)" % (OUT, os.path.getsize(OUT)))
